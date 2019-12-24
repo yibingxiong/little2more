@@ -168,4 +168,98 @@ file->project structures -> 左边Artifacts -> 加号->web application exploded-
 ### 一些常用配置
 
 
-未完。。。。。
+1. spring整合mybatis, 开启自动扫描， 声明式事务支持相关配置
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--整合mybatis-->
+    <!--数据源-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/hospital?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123456ybx"/>
+    </bean>
+    <!--sesson工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.xiong.hospital.entity"/>
+    </bean>
+    <!--持久化对象,说明要让mybatis扫描哪个包-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.xiong.hospital.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+    <!--声明式事务-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--通知-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="search*" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--织入-->
+    <aop:config>
+        <aop:pointcut id="txPointCut" expression="execution(* com.xiong.hospital.service.*.*(..))"/>
+    </aop:config>
+
+    <!--注解扫描-->
+    <context:component-scan base-package="com.xiong"/>
+    <aop:aspectj-autoproxy />
+</beans>
+```
+
+
+2. mybatis映射文件
+
+放到和接口包相同的resources目录下边
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiong.hospital.dao.DeptDao">
+    <resultMap id="deptResultMap" type="Dept">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <collection property="category" select="com.xiong.hospital.dao.CategoryDao.find" column="category_id"/>
+    </resultMap>
+    <insert id="insert" parameterType="Dept" useGeneratedKeys="true">
+        insert into dept values (null, #{category.id}, #{name},#{createTime},#{updateTime});
+    </insert>
+    <update id="update" parameterType="Dept">
+        update dept set category_id=#{category.id},name =#{name},create_time=#{createTime},update_time=#{updateTime} where id=#{id}
+    </update>
+    <delete id="delete" parameterType="Long">
+        delete from dept where id=#{value}
+    </delete>
+    <select id="findAll" resultMap="deptResultMap">
+        select * from dept order by update_time desc;
+    </select>
+    <select id="findByCategory" resultMap="deptResultMap" parameterType="Long">
+        select * from dept where category_id=#{value} order by update_time desc ;
+    </select>
+</mapper>
+```
