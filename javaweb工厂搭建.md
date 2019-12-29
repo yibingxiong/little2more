@@ -263,3 +263,74 @@ file->project structures -> 左边Artifacts -> 加号->web application exploded-
     </select>
 </mapper>
 ```
+
+## spring boot工程创建(maven创建)
+
+1. 依赖安装,与打包方式制定
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.xiong</groupId>
+    <artifactId>springboot_learn</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <repositories>
+        <repository>
+            <name>aliyun</name>
+            <id>aliyun</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </repository>
+    </repositories>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.1.RELEASE</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.2.1.RELEASE</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+2. 创建入口类
+
+```java
+package com.xiong.springboot_learn;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+// 说明这里是spring boot的入口类
+@SpringBootApplication
+public class MySpringBootApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MySpringBootApplication.class);
+    }
+}
+
+```
+
+
+## spring boot工程创建(spring initializrc创建)
+
+
