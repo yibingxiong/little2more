@@ -331,6 +331,351 @@ public class MySpringBootApplication {
 ```
 
 
-## spring boot工程创建(spring initializrc创建)
+## spring boot工程创建(spring initializr创建 与框架整合)
+
+### 项目创建基本步骤
+
+1. File -> new -> project
+2. 左侧选择Spring initializr,右侧选择jdk 1.8以上版本, next
+3. 填写group和artificat next
+4. 左边web 右边spring web next
+5. 填写项目名和路径， finish
 
 
+### 整合logback
+
+1. 依赖安装
+
+```
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-classic</artifactId>
+    <version>1.2.3</version>
+</dependency>
+```
+
+2. 配置
+
+```xml
+<!-- logback.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <!-- 定义参数常量 -->
+    <!-- TRACE < DEBUG < INFO < WARN < ERROR -->
+    <!-- logger.trace("msg") logger.debug... -->
+    <property name="log.level" value="debug" />
+    <property name="log.maxHistory" value="30" />
+    <property name="log.filePath" value="${catalina.base}/logs/webapps" />
+    <property name="log.pattern"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n" />
+    <!-- 控制台设置 -->
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+    <!-- DEBUG -->
+    <appender name="debugAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 文件路径 -->
+        <file>${log.filePath}/debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 文件名称 -->
+            <fileNamePattern>${log.filePath}/debug/debug.%d{yyyy-MM-dd}.log.gz
+            </fileNamePattern>
+            <!-- 文件最大保存历史数量 -->
+            <maxHistory>${log.maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!-- INFO -->
+    <appender name="infoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 文件路径 -->
+        <file>${log.filePath}/info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 文件名称 -->
+            <fileNamePattern>${log.filePath}/info/info.%d{yyyy-MM-dd}.log.gz
+            </fileNamePattern>
+            <!-- 文件最大保存历史数量 -->
+            <maxHistory>${log.maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!-- ERROR -->
+    <appender name="errorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 文件路径 -->
+        <file>${log.filePath}/erorr.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 文件名称 -->
+            <fileNamePattern>${log.filePath}/error/error.%d{yyyy-MM-dd}.log.gz
+            </fileNamePattern>
+            <!-- 文件最大保存历史数量 -->
+            <maxHistory>${log.maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <logger name="com.xiong" level="${log.level}" additivity="true">
+        <appender-ref ref="debugAppender"/>
+        <appender-ref ref="infoAppender"/>
+        <appender-ref ref="errorAppender"/>
+    </logger>
+    <root level="info">
+        <appender-ref ref="consoleAppender"/>
+    </root>
+</configuration>
+```
+### 整合mybatis
+
+1. 依赖安装
+
+```xml
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>2.1.1</version>
+</dependency>
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis</artifactId>
+    <version>3.5.3</version>
+</dependency>
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.18</version>
+</dependency>
+```
+
+2. 配置datasource
+
+```java
+package com.xiong.springbootseed.config.dao;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import java.beans.PropertyVetoException;
+
+/**
+ * 配置datasource到ioc容器里面
+ */
+@Configuration
+// 配置mybatis mapper的扫描路径
+@MapperScan("com.xiong.springbootseed.dao")
+public class DataSourceConfiguration {
+    @Value("${jdbc.driver}")
+    private String jdbcDriver;
+    @Value("${jdbc.url}")
+    private String jdbcUrl;
+    @Value("${jdbc.username}")
+    private String jdbcUsername;
+    @Value("${jdbc.password}")
+    private String jdbcPassword;
+
+    /**
+     * 生成与spring-dao.xml对应的bean dataSource
+     *
+     * @return
+     * @throws PropertyVetoException
+     */
+    @Bean(name = "dataSource")
+    public DriverManagerDataSource createDataSource() throws PropertyVetoException {
+        // 生成datasource实例
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        // 跟配置文件一样设置以下信息
+        // 驱动
+        dataSource.setDriverClassName(jdbcDriver);
+        // 数据库连接URL
+        dataSource.setUrl(jdbcUrl);
+        // 设置用户名
+        dataSource.setUsername(jdbcUsername);
+        // 设置用户密码
+        dataSource.setPassword(jdbcPassword);
+        return dataSource;
+    }
+
+}
+
+```
+
+3. 配置SqlSessionFactoryBean
+
+```java
+package com.xiong.springbootseed.config.dao;
+
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.io.IOException;
+
+@Configuration
+public class SessionFactoryConfiguration {
+    // mybatis-config.xml配置文件的路径
+    private static String mybatisConfigFile;
+
+    @Value("${mybaits.config_file}")
+    public void setMybatisConfigFile(String mybatisConfigFile) {
+        SessionFactoryConfiguration.mybatisConfigFile = mybatisConfigFile;
+    }
+
+    // mybatis mapper文件所在路径
+    private static String mapperPath;
+
+    @Value("${mybaits.mapper_path}")
+    public void setMapperPath(String mapperPath) {
+        SessionFactoryConfiguration.mapperPath = mapperPath;
+    }
+
+    // 实体类所在的package
+    @Value("${mybaits.type_alias_package}")
+    private String typeAliasPackage;
+
+    @Resource
+    private DataSource dataSource;
+
+    /**
+     * 创建sqlSessionFactoryBean 实例 并且设置configtion 设置mapper 映射路径 设置datasource数据源
+     *
+     * @return
+     * @throws IOException
+     */
+    @Bean(name = "sqlSessionFactory")
+    public SqlSessionFactoryBean createSqlSessionFactoryBean() throws IOException {
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        // 设置mybatis 配置文件地址
+        sqlSessionFactoryBean.setConfigLocation(new ClassPathResource(mybatisConfigFile));
+        // mapper的路径可以不配， 不配置的话，在resourses建立和dao包相同的目录即可
+        // 添加mapper 扫描路径
+//        PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
+//        String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + mapperPath;
+//        sqlSessionFactoryBean.setMapperLocations(pathMatchingResourcePatternResolver.getResources(packageSearchPath));
+        // 设置dataSource
+        sqlSessionFactoryBean.setDataSource(dataSource);
+        // 设置typeAlias 包扫描路径
+        sqlSessionFactoryBean.setTypeAliasesPackage(typeAliasPackage);
+        return sqlSessionFactoryBean;
+    }
+
+}
+```
+
+4. 注意上边@Value注入的属性来自配置文件application.yml
+
+```yml
+
+# DataSource
+jdbc:
+ driver: com.mysql.cj.jdbc.Driver
+ url: jdbc:mysql://127.0.0.1:3306/springbootseed?useUnicode=true&characterEncoding=utf8&useSSL=false
+ username: root
+ password: 123456ybx
+
+# Mybatis
+mybaits:
+  config_file: mybatis-config.xml
+  type_alias_package: com.xiong.springbootseed.entity
+server:
+  port: 8082
+```
+
+### 整合c3p0
+
+上线的数据源我们用的spring提供的， 也可以改成c3p0, c3p0会更灵活一些
+
+1. 依赖
+
+```xml
+<dependency>
+    <groupId>com.mchange</groupId>
+    <artifactId>c3p0</artifactId>
+    <version>0.9.5.4</version>
+</dependency>
+```
+
+2. 配置dataSource
+
+```
+package com.xiong.springbootseed.config.dao;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.beans.PropertyVetoException;
+
+/**
+ * 配置datasource到ioc容器里面
+ */
+@Configuration
+// 配置mybatis mapper的扫描路径
+@MapperScan("com.xiong.springbootseed.dao")
+public class DataSourceConfiguration {
+    @Value("${jdbc.driver}")
+    private String jdbcDriver;
+    @Value("${jdbc.url}")
+    private String jdbcUrl;
+    @Value("${jdbc.username}")
+    private String jdbcUsername;
+    @Value("${jdbc.password}")
+    private String jdbcPassword;
+
+    /**
+     * 生成与spring-dao.xml对应的bean dataSource
+     *
+     * @return
+     * @throws PropertyVetoException
+     */
+    @Bean(name = "dataSource")
+    public ComboPooledDataSource createDataSource() throws PropertyVetoException {
+        ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
+        comboPooledDataSource.setDriverClass(jdbcDriver);
+        comboPooledDataSource.setJdbcUrl(jdbcUrl);
+        comboPooledDataSource.setUser(jdbcUsername);
+        comboPooledDataSource.setPassword(jdbcPassword);
+        // 连接池最大线程数
+        comboPooledDataSource.setMaxPoolSize(30);
+        // 连接池最小线程数
+        comboPooledDataSource.setMinPoolSize(10);
+        // 关闭连接后不自动commit
+        comboPooledDataSource.setAutoCommitOnClose(false);
+        // 连接超时时间
+        comboPooledDataSource.setCheckoutTimeout(10000);
+        // 连接失败重试次数
+        comboPooledDataSource.setAcquireRetryAttempts(2);
+        return comboPooledDataSource;
+    }
+
+}
+```
