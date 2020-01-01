@@ -679,3 +679,25 @@ public class DataSourceConfiguration {
 
 }
 ```
+
+### 集成FreeMarkder
+
+1. 依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-freemarker</artifactId>
+</dependency>
+```
+
+2. 配置application.yml
+
+```yml
+spring:
+  freemarker:
+    template-loader-path: classpath:/templates/
+    suffix: .ftl
+    content-type: text/html
+    charset: UTF-8
+``` 
