@@ -784,3 +784,59 @@ public class KaptchaConfiguration {
 }
 
 ```
+
+### 图片上传核心配置和代码
+
+1. 依赖
+
+```
+ <dependency>
+    <groupId>commons-fileupload</groupId>
+    <artifactId>commons-fileupload</artifactId>
+    <version>1.4</version>
+</dependency>
+```
+
+2. 配置MultipartResolver
+
+```
+package com.xiong.springbootseed.config.web;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+
+@Configuration
+public class MultipartResolverConfiguration {
+    @Bean("multipartResolver")
+    MultipartResolver createMultipartResolver() {
+        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+        multipartResolver.setMaxUploadSize(187336*5);
+        return multipartResolver;
+    }
+}
+
+```
+
+3. 处理文件长传
+
+```
+    @PostMapping("/upload")
+    @ResponseBody
+    public String upload(HttpServletRequest request, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+        if (multipartFile != null) {
+            //生成uuid作为文件名称
+            String uuid = UUID.randomUUID().toString().replaceAll("-","");
+            //获得文件类型（可以判断如果不是图片，禁止上传）
+            String contentType=multipartFile.getContentType();
+            //获得文件后缀名称
+            String imageName=contentType.substring(contentType.indexOf("/")+1);
+            String pathRoot = "/Users/bear/temp";
+            String path="";
+            path="/static/images/"+uuid+"."+imageName;
+            multipartFile.transferTo(new File(pathRoot+path));
+        }
+        return  "le";
+    }
+```
