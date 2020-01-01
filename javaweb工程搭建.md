@@ -742,3 +742,45 @@ public class TransactionManagementConfiguration implements TransactionManagement
 }
 
 ```
+
+### 验证码组件Kaptcha整合
+
+1. 依赖
+
+```xml
+<dependency>
+    <groupId>com.github.penggle</groupId>
+    <artifactId>kaptcha</artifactId>
+    <version>2.3.2</version>
+</dependency>
+```
+
+2. 使用编程方式创建servlet
+
+```java
+package com.xiong.springbootseed.config.web;
+
+import com.google.code.kaptcha.servlet.KaptchaServlet;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class KaptchaConfiguration {
+    @Bean
+    ServletRegistrationBean createServletRegistrationBean() {
+        ServletRegistrationBean servlet =  new  ServletRegistrationBean(new KaptchaServlet(), "/getCode");
+//        servlet.addInitParameter("kaptcha.border", border);// 无边框
+//        servlet.addInitParameter("kaptcha.textproducer.font.color", fcolor); // 字体颜色
+//        servlet.addInitParameter("kaptcha.image.width", width);// 图片宽度
+//        servlet.addInitParameter("kaptcha.textproducer.char.string", cString);// 使用哪些字符生成验证码
+//        servlet.addInitParameter("kaptcha.image.height", height);// 图片高度
+//        servlet.addInitParameter("kaptcha.textproducer.font.size", fsize);// 字体大小
+//        servlet.addInitParameter("kaptcha.noise.color", nColor);// 干扰线的颜色
+//        servlet.addInitParameter("kaptcha.textproducer.char.length", clength);// 字符个数
+//        servlet.addInitParameter("kaptcha.textproducer.font.names", fnames);// 字体
+        return servlet;
+    }
+}
+
+```
