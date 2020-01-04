@@ -8,7 +8,7 @@
 2. [Maven](./后端/Maven.png)
 3. [MyBatis](./后端/MyBatis.png)
 4. [FreeMarker](./后端/FreeMarker.png)
-5. [深入浅出MySQL数据库.png](./后端/深入浅出MySQL数据库.png)
+5. [深入浅出MySQL数据库-来自慕课网](./后端/深入浅出MySQL数据库.png)
 6. [javaweb工程搭建](./后端/javaweb工程搭建.md)
 7. [Linux](./后端/Linux.png)
 8. [Spring](./后端/Spring.png)
