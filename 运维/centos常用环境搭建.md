@@ -1,7 +1,12 @@
 
-# centos常用环境配置
+# centos7常用环境搭建
+
+> 每次搭各种环境都很痛苦，遇到各种问题，因此写下此篇记录下centos7下一些环境的搭建过程、遇到的问题及解决方法，有其他环境的搭建也会进行更新。本文不值得看，但可以收藏下，已备不时之需。本文参考了[从0开始 独立完成企业级Java电商网站开发(服务端)
+](https://coding.imooc.com/class/421.html)
 
 ## 修改软件源
+
+修改为国内的yum源可以加快下载速度
 
 [参考文章](https://developer.aliyun.com/mirror/centos?spm=a2c6h.13651102.0.0.3e221b11kAZnYc)
 
@@ -16,20 +21,21 @@
 - [Linux服务管理](http://www.imooc.com/learn/537)
 - [用iptables搭建一套强大的安全防护盾](http://www.imooc.com/learn/389)
 
+
 ## jdk安装
 
 1. jdk下载
 
-- [jdk历史版本](https://www.oracle.com/technetwork/java/javase/archive-139210.html)
+- [jdk历史版本地址](https://www.oracle.com/technetwork/java/javase/archive-139210.html)
 
 - 下载
 
 ```
 wget https://download.oracle.com/otn/java/jdk/8u231-b11/5b13a193868b4bf28bcb45c792fce896/jdk-8u231-linux-x64.rpm
 ```
-（不能这样下载， 因为有个什么破协议，需要先下载然后传上去）
+**（不能这样下载， 因为有个什么破协议，需要先下载然后传上去）**
 
-scp命令
+上传到服务器可以用scp命令
 
 ```
 scp root@107.172.27.254:/home/test.txt .   //下载文件
@@ -44,6 +50,7 @@ scp -r test root@107.172.27.254:/home   //上传目录
 1. 卸载默认jdk, 如果有的话
 
 - 判断是否有jdk 
+
 ```
 rpm -qa | grep jdk
 ```
@@ -56,7 +63,9 @@ yum remove xxx
 
 ```
 chmod 777 jdk.xxx.rpm
+# 这里直接给了最高权限，大家慎重
 ```
+
 3. 安装
 
 ```
@@ -71,6 +80,8 @@ rpm -ivh jdk.xxx.rpm
 - 配置PATH ,CLASSPATH, JAVA_HOME
 - source /etc/profile
 
+在/etc/profile加的变量如下
+
 ```bash
 # 这里 JAVA_HOME为java的安装目录
 export JAVA_HOME=/usr/java/jdk1.8.0_202-amd64
@@ -79,15 +90,15 @@ export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/tools.jar
 ```
 
 6. 验证jdk
+
 ```
 java -version
 ```
 
 ## tomcat安装
 
-1. 下载（https://tomcat.apache.org/download-80.cgi）
+1. 下载（历史版本地址https://tomcat.apache.org/download-80.cgi）
 
-- 地址： http://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-8/v8.5.50/bin/apache-tomcat-8.5.50.tar.gz
 
 ```
 wget http://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-8/v8.5.50/bin/apache-tomcat-8.5.50.tar.gz
@@ -98,6 +109,7 @@ wget http://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-8/v8.5.50/bin/apac
 3. 配置环境变量
 
 ```
+# 这个我之前没配过，貌似用处不大
 export CATALINA_HOME=/devlib/apache-tomcat-8.5.50
 ```
 
@@ -166,7 +178,7 @@ yum -y install vsftpd
 3. 创建虚拟用户
 
 - 创建一个目录作为ftp目录， 如/ftpfile
-- 添加匿名用户 useradd -M -s /sbin/nologin ftpuser  -M表示不要家
+- 添加匿名用户 useradd -M -s /sbin/nologin ftpuser  -M表示不要家目录
 - 修改权限： chown -R ftpuser.ftpuser /ftpfile
 - 重设ftpuser密码 passwd xxxx
 
@@ -219,7 +231,7 @@ vim chroot_list
 )
 ```
 
-出现vsftpd：500 OOPS: vsftpd: refusing to run with writable root inside chroot ()错误的解决方法
+- 出现vsftpd：500 OOPS: vsftpd: refusing to run with writable root inside chroot ()错误的解决方法
 
 加一行这个配置就可以
 
@@ -254,8 +266,11 @@ https://www.linuxidc.com/Linux/2019-06/159104.htm
 8. 验证
 
 - 启动
-
-service vsftpd restart 
+·
+```
+service vsftpd start 
+```
+- 尝试用客户端去连
 
 9. 常用命令
 
@@ -263,7 +278,6 @@ service vsftpd restart
 - 停止： service vsftpd restart
 - 关闭： service vsftpd stop
 
-也可以
 
 ```
 #设置开机启动
@@ -441,6 +455,8 @@ yum install -y mysql-server
 
 3. 配置mysql自启动
 
+用上面配置vsftpd自启动的方法也可以
+
 ```
 chkconfig mysqld on
 # 2-5需要时on
@@ -471,6 +487,8 @@ ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: N
 修改/etc/my.cnf 在[mysqld]下面加一行skip-grant-tables
 登录后改root密码， 然后去掉这一行
 
+改密码的方法
+
 ```
 alter user'root'@'localhost' IDENTIFIED BY '你的密码';
 ```
@@ -495,7 +513,6 @@ flush privileges;刷新权限
 
 也可以指定ip连接
 
- 
 
 修改密码
 
@@ -535,25 +552,17 @@ all privileges 可换成select,update,insert,delete,drop,create等操作
 
 如：grant all privileges on 数据库.指定表名 to 'test1'@'localhost';
 
- 
-
- 
 
 查看用户授权信息
 
 show grants for 'test1'@'localhost';
 
  
-
- 
-
 撤销权限
 
 revoke all privileges on *.* from 'test1'@'localhost';
 
 用户有什么权限就撤什么权限
-
- 
 
 删除用户
 
