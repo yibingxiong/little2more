@@ -398,7 +398,7 @@ server {
 
 ```
 
-### 执行目录
+### 指向目录
 
 ```
 server {
@@ -423,4 +423,139 @@ server {
     }
 }
 
+```
+
+## mysql
+
+1. 安装
+
+```
+yum install -y mysql-server
+```
+(centos7下这样不行， 软件源里边没有这个，需要下载源再装，如下)
+
+参考文章https://www.cnblogs.com/coding-one/p/11698271.html
+
+
+2. 配置文件位置/etc/my.cnf
+
+3. 配置mysql自启动
+
+```
+chkconfig mysqld on
+# 2-5需要时on
+chkconfig --list mysqld
+```
+4. 防火墙开放3306
+5. 启动验证
+
+```
+启动：systemctl start mysqld.service
+停止：systemctl stop mysqld.service
+重启：systemctl restart mysqld.service
+查看服务状态：systemctl status mysqld.service
+```
+
+- 出现Job for mysqld.service failed because the control process exited with error code问题
+
+删除/var/lib/mysql 再启动
+
+- 登录(能登录进去就证明可以了)
+
+```
+mysql -u root
+```
+- 登录出错
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+
+修改/etc/my.cnf 在[mysqld]下面加一行skip-grant-tables
+登录后改root密码， 然后去掉这一行
+
+```
+alter user'root'@'localhost' IDENTIFIED BY '你的密码';
+```
+
+
+5. mysql用户和权限相关配置
+
+https://www.cnblogs.com/gychomie/p/11013442.html
+
+```
+创建用户
+
+create user 'test1'@'localhost' identified by '‘密码';
+
+flush privileges;刷新权限
+
+ 
+
+其中localhost指本地才可连接
+
+可以将其换成%指任意ip都能连接
+
+也可以指定ip连接
+
+ 
+
+修改密码
+
+Alter user 'test1'@'localhost' identified by '新密码';
+
+flush privileges;
+
+ 
+
+授权
+
+grant all privileges on *.* to 'test1'@'localhost' with grant option;
+
+ 
+
+with gran option表示该用户可给其它用户赋予权限，但不可能超过该用户已有的权限
+
+比如a用户有select,insert权限，也可给其它用户赋权，但它不可能给其它用户赋delete权限，除了select,insert以外的都不能
+
+这句话可加可不加，视情况而定。
+
+ 
+
+all privileges 可换成select,update,insert,delete,drop,create等操作
+
+如：grant select,insert,update,delete on *.* to 'test1'@'localhost';
+
+ 
+
+第一个*表示通配数据库，可指定新建用户只可操作的数据库
+
+如：grant all privileges on 数据库.* to 'test1'@'localhost';
+
+ 
+
+第二个*表示通配表，可指定新建用户只可操作的数据库下的某个表
+
+如：grant all privileges on 数据库.指定表名 to 'test1'@'localhost';
+
+ 
+
+ 
+
+查看用户授权信息
+
+show grants for 'test1'@'localhost';
+
+ 
+
+ 
+
+撤销权限
+
+revoke all privileges on *.* from 'test1'@'localhost';
+
+用户有什么权限就撤什么权限
+
+ 
+
+删除用户
+
+drop user 'test1'@'localhost';
 ```
