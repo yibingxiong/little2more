@@ -60,7 +60,7 @@ yum remove xxx
 
 ```
 chmod 777 jdk.xxx.rpm
-# 这里直接给了最高权限，大家慎重
+# 这里直接给了最高权限，大家慎重(这里必须要给，否则会报错)
 ```
 
 3. 安装
@@ -411,6 +411,12 @@ server {
 
 ```
 
+## mariaDB安装
+
+
+https://www.cnblogs.com/yhongji/p/9783065.html
+
+
 ## mysql
 
 1. 安装
@@ -420,7 +426,7 @@ yum install -y mysql-server
 ```
 (centos7下这样不行， 软件源里边没有这个，需要下载源再装，如下)
 
-参考文章https://www.cnblogs.com/coding-one/p/11698271.html
+参考文章https://www.cnblogs.com/mcoding-one/p/11698271.html
 
 
 2. 配置文件位置/etc/my.cnf
