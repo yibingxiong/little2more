@@ -92,6 +92,16 @@ export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/tools.jar
 java -version
 ```
 
+7. 问题解决
+yum install glibc.i686
+然后再装一次
+
+
+bash: /usr/bin/java: /lib/ld-linux.so.2: bad ELF interpreter: 没有那个文件或目录
+java/lang/NoClassDefFoundError: java/lang/Object
+
+
+
 ## tomcat安装
 
 1. 下载（历史版本地址https://tomcat.apache.org/download-80.cgi）
@@ -277,10 +287,10 @@ yum install -y gcc
 gcc -v
 ```
 
-2. 安装pcre
+2. 安装pcre(用于解析正则表达式)
 
 ```
-yum install -y pcre-devel
+yum install -y pcre pcre-devel
 ```
 
 3. 安装zlib
@@ -307,15 +317,38 @@ yum install -y gcc pcre-devel zlib zlib-devel openssl openssl-devel
 
 ```
 wget http://nginx.org/download/nginx-1.13.6.tar.gz
+
+或者
+
+wget http://nginx.org/download/nginx-1.9.9.tar.gz
 ```
 
 7. 解压
 
 8. 进入解压后的目录执行
 
+配置命令：
+
 ```
-./configure
+命令	解释
+–prefix	指定nginx安装目录
+–pid-path	指向nginx的pid
+–lock-path	锁定安装文件，防止被恶意篡改或误操作
+–error-log	错误日志
+–http-log-path	http日志
+–with-http_gzip_static_module	启用gzip模块，在线实时压缩输出数据流
+–http-client-body-temp-path	设定客户端请求的临时目录
+–http-proxy-temp-path	设定http代理临时目录
+–http-fastcgi-temp-path	设定fastcgi临时目录
+–http-uwsgi-temp-path	设定uwsgi临时目录
+–http-scgi-temp-path	设定scgi临时目录
+```
+
+```
+ ./configure  --prefix=/usr/local/nginx  --pid-path=/var/run/nginx/nginx.pid  --lock-path=/var/lock/nginx.lock
+
 # 加--prefix=/usr/nginx可以指定安装目录
+
 whereis nginx可以查询安装目录， 默认在/usr/local/
 ```
 9. 执行make 然后make install
