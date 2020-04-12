@@ -454,19 +454,9 @@ https://www.cnblogs.com/yhongji/p/9783065.html
 
 1. 安装
 
-```
-yum install -y mysql-server
-```
-(centos7下这样不行， 软件源里边没有这个，需要下载源再装，如下)
+[官方安装教程](https://dev.mysql.com/doc/refman/8.0/en/linux-installation-yum-repo.html)
 
-参考文章https://www.cnblogs.com/mcoding-one/p/11698271.html
-
-
-2. 配置文件位置/etc/my.cnf
-
-3. 配置mysql自启动
-
-用上面配置vsftpd自启动的方法也可以
+其中 2. Selecting a Release Series 可以跳过
 
 ```
 chkconfig mysqld on
@@ -512,9 +502,11 @@ https://www.cnblogs.com/gychomie/p/11013442.html
 ```
 创建用户
 
-create user 'test1'@'localhost' identified by '‘密码';
+create user 'bear'@'%' identified with mysql_native_password by 'Ybx123@@';
 
 flush privileges;刷新权限
+
+with mysql_native_password 表示用老的加密方式
 
  
 
@@ -530,6 +522,8 @@ flush privileges;刷新权限
 Alter user 'test1'@'localhost' identified by '新密码';
 
 flush privileges;
+
+
 
  
 
@@ -592,3 +586,8 @@ drop user 'test1'@'localhost';
 
 
 (持续更新...)
+
+
+
+
+
